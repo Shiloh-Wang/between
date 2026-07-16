@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Section 03 // 灵感界定与市场祛魅</title>
+    <style>
+        :root {
+            --bg-cream: #F4F1EA;
+            --bg-linen: #E8E2D5;          
+            --bg-forest: #2D3A34;         
+            --text-dark: #1C2621;
+            --text-light: #F4F1EA;
+            --accent-sand: #C5B9A5;       /* 标志性较浅暗金色，用于辅助、小英文或深底色 */
+            --accent-brown: #826958;      /* 质感深褐暗金，用于浅底大字高亮，保证对比度清晰 */
+            --accent-gold: #C5B9A5;       /* 统一：重点高亮字全部使用深褐暗金 */
+            --font-serif-cn: "Source Han Serif SC", "Noto Serif CJK SC", "Songti SC", "SimSun", serif;
+            --font-serif-en: "Times New Roman", Times, serif;
+
+            /* 方案 B：冷静画室渐变 */
+            --text-lead: #111614;         /* 极深石墨黑 */
+            --border-lead: rgba(17, 22, 20, 0.12); /* 铅笔细线 */
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            background-color: var(--bg-cream); 
+            color: var(--text-dark); 
+            font-family: var(--font-serif-cn); 
+            letter-spacing: 0.05em; 
+            line-height: 1.8; 
+            overflow-x: hidden; 
+            /* 背景色渐变过渡时间拉长至 2.2s，增加微光雾化慢融化感 */
+            transition: background 2.2s cubic-bezier(0.22, 1, 0.36, 1), color 2.2s cubic-bezier(0.22, 1, 0.36, 1); 
+        }
+
+        /* 固定顶部返回索引按钮 */
+        .back-to-index { position: fixed; top: 30px; left: 5%; z-index: 100; text-decoration: none; color: var(--accent-brown); font-family: var(--font-serif-en); font-size: 0.85rem; letter-spacing: 0.15em; text-transform: uppercase; border-bottom: 1px solid var(--accent-sand); padding-bottom: 4px; transition: opacity 0.3s; }
+        .back-to-index:hover { opacity: 0.7; }
+
+        .slide-viewport { width: 100%; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 100px 8%; border-bottom: 1px solid rgba(28, 38, 33, 0.08); position: relative; }
+        
+        /* 动效：空气中凝结的文字 */
+        .blur-reveal {
+            opacity: 0;
+            filter: blur(8px);
+            transform: translateY(25px);
+            transition: opacity 1.8s cubic-bezier(0.16, 1, 0.3, 1),
+                        filter 1.6s cubic-bezier(0.16, 1, 0.3, 1),
+                        transform 1.8s cubic-bezier(0.16, 1, 0.3, 1);
+            will-change: opacity, filter, transform;
+        }
+        .blur-reveal.is-visible {
+            opacity: 1;
+            filter: blur(0);
+            transform: translateY(0);
+        }
+
+        /* 线条走线延伸 */
+        .hairline { 
+            width: 60px; height: 1px; background-color: var(--text-dark); margin: 25px 0; opacity: 0.5; 
+            transform: scaleX(0); transform-origin: left; transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .is-visible .hairline { transform: scaleX(1); }
+
+        /* 章节扉页样式 */
+        .chapter-dark-bg { background-color: var(--bg-forest); color: #F4F1EA; text-align: center; align-items: center; }
+        .chapter-title-group h2 { font-size: 2rem; font-weight: 400; line-height: 1.8; letter-spacing: 0.12em; max-width: 800px; }
+        .chapter-title-group p { font-family: var(--font-serif-en); font-style: italic; color: var(--accent-sand); margin-top: 25px; font-size: 1.2rem; letter-spacing: 0.05em; }
+
+        /* ==========================================================================
+           SLIDE 24 | 渐变背景与大字号排版重构
+           ========================================================================== */
+        #slide-24 {
+            /* 慢渐变过渡 */
+            transition: background 2.2s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        /* 激活渐变色背景 Class */
+        body.theme-concrete {
+            background: linear-gradient(135deg, #EBE9E4 0%, #D8D6D0 100%) !important;
+            color: var(--text-lead);
+        }
+
+        body.theme-concrete .hairline {
+            background-color: var(--text-lead);
+        }
+
+        /* 改为居中对齐 align-items: center，右侧适当下移不再死死顶天 */
+        .content-grid-2 { 
+            display: grid; 
+            grid-template-columns: 45% 1px 45%; 
+            gap: 5%; 
+            align-items: center; 
+            width: 100%; 
+            position: relative;
+        }
+        
+        .title-area h3 { font-size: 2.1rem; font-weight: 500; margin-bottom: 8px; line-height: 1.4; letter-spacing: 0.02em; }
+        .title-area .sub { font-family: var(--font-serif-en); font-size: 0.85rem; color: var(--accent-brown); letter-spacing: 0.18em; text-transform: uppercase; }
+        
+        /* 故事流排版风格（大字小字配合） */
+        .poem-layout { max-width: 100%; margin-top: 15px; }
+        .story-movement { margin-bottom: 40px; }
+        .story-movement h5 { 
+            font-family: var(--font-serif-en); 
+            font-size: 0.75rem; 
+            letter-spacing: 0.2em; 
+            text-transform: uppercase; 
+            color: var(--accent-brown); 
+            margin-bottom: 8px; 
+            font-weight: 600; 
+            opacity: 0.7;
+        }
+        
+        /* 大字号核心宣言 */
+        .story-movement .story-lead-sentence {
+            font-size: 1.35rem; 
+            font-weight: 500;
+            line-height: 1.6;
+            color: var(--text-lead);
+            margin-bottom: 16px;
+            letter-spacing: 0.05em;
+        }
+        .story-movement .story-lead-sentence strong {
+            color: var(--accent-gold); /* 已完美统一为醒目的深褐暗金色 */
+            font-weight: 600;
+        }
+
+        /* 小字号叙事正文 */
+        .story-movement .story-body-text { 
+            font-size: 0.9rem; 
+            line-height: 2.1; 
+            color: var(--text-lead);
+            opacity: 0.75;
+            text-align: justify;
+            font-weight: 400;
+        }
+
+        /* 乐章之间的过渡语 */
+        .story-transition-bridge {
+            margin-top: 30px;
+            font-size: 1.1rem;
+            line-height: 1.9;
+            border-left: 2px solid var(--accent-sand);
+            padding-left: 20px;
+            font-style: italic;
+            color: var(--accent-brown);
+            font-weight: 500;
+        }
+
+        /* 中轴铅笔垂直分割线 */
+        .mid-axis-line {
+            width: 1px;
+            height: 0%;
+            background-color: var(--border-lead);
+            transition: height 1.8s cubic-bezier(0.22, 1, 0.36, 1);
+            align-self: stretch; /* 占满容器高度自适应 */
+        }
+        /* 页面在视口可见时，中轴线优雅向下延伸 */
+        .is-visible .mid-axis-line {
+            height: 100%;
+        }
+
+        /* 右侧布局结构 */
+        .right-layout-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 45px;
+            width: 100%;
+        }
+
+        /* VS 卡片交互 */
+        .vs-container { display: grid; grid-template-columns: 1fr auto 1fr; gap: 20px; align-items: center; width: 100%; }
+        .vs-card { 
+            background: rgba(255, 255, 255, 0.35); padding: 20px; border: 1px solid var(--border-lead); display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 310px; border-radius: 2px;
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .vs-card.left-card { transform: rotate(-0.5deg) translateY(5px); }
+        .vs-card.right-card { transform: rotate(0.5deg) translateY(-5px); background-color: rgba(232, 226, 213, 0.35); }
+        .is-visible .vs-card.left-card, .is-visible .vs-card.right-card { transform: rotate(0) translateY(0); }
+        
+        .vs-container:hover .vs-card:not(:hover) { opacity: 0.5; filter: blur(1px); }
+        .vs-card:hover { transform: scale(1.02) translateY(-3px) !important; z-index: 2; box-shadow: 0 15px 30px rgba(0,0,0,0.05); background: rgba(255, 255, 255, 0.75); }
+        
+        .vs-card .placeholder-title { font-size: 0.95rem; color: var(--text-lead); margin-bottom: 6px; font-weight: 500; letter-spacing: 0.08em; }
+        .vs-card .placeholder-sub { font-size: 0.8rem; color: var(--accent-brown); text-align: center; opacity: 0.8; margin-bottom: 12px; }
+        .vs-divider { font-family: var(--font-serif-en); font-style: italic; font-size: 1.1rem; color: var(--accent-sand); font-weight: bold; }
+
+        .sketch-img-wrapper { width: 100%; height: 200px; overflow: hidden; background: transparent; display: flex; align-items: center; justify-content: center; border-radius: 1px; }
+        .sketch-img-wrapper img { width: 100%; height: 100%; object-fit: contain; mix-blend-mode: multiply; filter: contrast(1.05); }
+
+        /* 思维分野对比面板 */
+        .matrix-container {
+            border-top: 1px solid var(--border-lead);
+            padding-top: 25px;
+            margin-top: 5px;
+        }
+        .matrix-title {
+            font-family: var(--font-serif-en);
+            font-size: 0.8rem;
+            letter-spacing: 0.2em;
+            color: var(--accent-brown);
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        .matrix-grid {
+            display: grid;
+            grid-template-columns: 80px 1fr 1fr;
+            gap: 12px 20px;
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+        .matrix-header {
+            font-weight: 600;
+            color: var(--accent-brown);
+            border-bottom: 1px solid var(--border-lead);
+            padding-bottom: 6px;
+            font-size: 0.8rem;
+        }
+        .matrix-row-label {
+            font-weight: 600;
+            color: var(--text-lead);
+            opacity: 0.8;
+        }
+        .matrix-cell {
+            padding: 4px 0;
+            color: var(--text-lead);
+            opacity: 0.9;
+        }
+        .matrix-cell strong {
+            color: var(--accent-gold); /* 统一：已同步至高对比度深褐暗金 */
+            font-weight: 500;
+        }
+
+        /* ==========================================================================
+           SLIDE 25 | 流程图页面
+           ========================================================================== */
+        .flow-container { width: 100%; max-width: 1000px; margin: 40px auto 20px auto; display: flex; flex-direction: column; gap: 30px; position: relative; }
+        .flow-row { display: flex; align-items: center; justify-content: space-between; width: 100%; position: relative; }
+        
+        .flow-node { 
+            background: #FAF9F6; border: 1px solid rgba(28, 38, 33, 0.1); padding: 15px 20px; flex: 1; text-align: center; border-radius: 2px; box-shadow: 0 2px 4px rgba(0,0,0,0.01);
+            opacity: 0; transform: translateY(10px); transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .flow-arrow { 
+            font-family: var(--font-serif-en); color: var(--accent-sand); font-size: 1.2rem; padding: 0 15px; flex-shrink: 0; 
+            opacity: 0; transform: scaleX(0); transform-origin: left; transition: all 0.5s ease;
+        }
+
+        .is-visible .flow-node { opacity: 1; transform: translateY(0); }
+        .is-visible .flow-arrow { opacity: 1; transform: scaleX(1); }
+        .flow-node .node-title { font-size: 0.95rem; font-weight: 500; color: var(--text-dark); }
+
+        /* 大留白深度独白 */
+        .deep-monologue { max-width: 750px; margin: 0 auto; padding: 0 20px; }
+        .deep-monologue p { font-size: 1.1rem; line-height: 2.3; text-align: justify; margin-bottom: 25px; opacity: 0.95; }
+        
+        /* 祛魅质问高亮 */
+        .deep-monologue p.question-highlight { 
+            font-size: 1.5rem; color: var(--accent-gold); /* 统一：已同步至高对比度深褐暗金 */
+            font-weight: 400; margin: 50px 0; text-align: center; letter-spacing: 0.12em; 
+            position: relative; transition: all 1s ease;
+        }
+        .conclusion-box { background: var(--bg-linen); padding: 35px; border-top: 1px solid var(--accent-sand); border-bottom: 1px solid var(--accent-sand); margin-top: 50px; text-align: center; font-style: italic; color: var(--accent-brown); font-size: 1.1rem; }
+
+        /* 结尾页 */
+        .poem-end { font-size: 1.3rem; line-height: 2.6; max-width: 600px; margin: 0 auto; text-align: center; }
+
+        /* 响应式媒体查询 */
+        @media (max-width: 992px) {
+            .content-grid-2 { 
+                grid-template-columns: 1fr; 
+                gap: 40px; 
+            }
+            .mid-axis-line {
+                display: none; /* 移动端隐藏垂直中轴线 */
+            }
+            .right-layout-wrapper { gap: 30px; }
+            .vs-container { grid-template-columns: 1fr; gap: 15px; }
+            .vs-divider { text-align: center; padding: 5px 0; transform: rotate(90deg); }
+            .matrix-grid { grid-template-columns: 1fr; gap: 10px; border-bottom: 1px solid var(--border-lead); padding-bottom: 15px; }
+            .matrix-header { display: none; }
+            .flow-row { flex-direction: column; gap: 10px; }
+            .flow-arrow { transform: rotate(90deg) !important; padding: 5px 0; transform-origin: top !important; }
+            .slide-viewport { padding: 80px 6%; }
+            .back-to-index { top: 20px; left: 6%; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 固定返回按钮 -->
+    <a href="index.html" class="back-to-index">&larr; Return to Index</a>
+
+    <main>
+
+        <!-- Slide 23 | 章节扉页 -->
+        <section id="slide-23" class="slide-viewport chapter-dark-bg">
+            <div class="chapter-title-group blur-reveal">
+                <h2>我与设计师之间，灵感如何被定义？</h2>
+                <p>How is inspiration defined?</p>
+            </div>
+        </section>
+
+
+        <!-- Slide 24 | 核心重构：中轴线、长渐变与重力平衡排版 -->
+        <section id="slide-24" class="slide-viewport blur-reveal" data-theme-trigger="concrete-atelier">
+            <div class="content-grid-2">
+                
+                <!-- 左侧：大字小字极具张力的叙事排版 -->
+                <div class="text-area">
+                    <div class="title-area">
+                        <h3>我擅长用故事解释我的设计，<br>而不是用碎片拼出一个故事</h3>
+                        <div class="sub">I don't assemble fragments. I tell stories.</div>
+                    </div>
+                    <div class="hairline"></div>
+                    
+                    <div class="poem-layout">
+                        <!-- 乐章 I -->
+                        <div class="story-movement">
+                            <h5>Movement I // 直觉的自白</h5>
+                            <p class="story-lead-sentence">我把自己定义为 <strong>An Intuitive Designer “野生设计师”</strong>。</p>
+                            <p class="story-body-text">
+                                从我对服装设计产生热烈兴趣的那一刻开始，我理解的灵感，向来是自然出现在脑海中的想法。它们大多来源于对外界感知内化后的记忆。它们可能是给我留下深刻印象的设计元素，甚至是一个已经忘记了在哪里见过的场景。但当我拿起笔，我知道线条该怎么走。通过我，表达我。
+                            </p>
+                        </div>
+
+                        <!-- 乐章 II -->
+                        <div class="story-movement">
+                            <h5>Movement II // 系统的碰撞</h5>
+                            <p class="story-lead-sentence">“我第一次震惊地发现：专业设计师的灵感，竟然是<strong>‘找’出来</strong>的。”</p>
+                            <p class="story-body-text">
+                                实习期间我请教科班专业的同事：那些院校的毕业设计或参赛作品为什么总是流动复杂？作品评价标准到底是什么？她告诉我，那些设计大多以解构主义概念性为主，目的在于检验创意。她教我，专业的服装设计是一套严密的、从寻找廓形到制作色彩板、拼贴板的科学流程。
+                            </p>
+                        </div>
+
+                        <!-- 乐章 III -->
+                        <div class="story-movement">
+                            <h5>Movement III // 寻找新的平衡</h5>
+                            <p class="story-lead-sentence">直觉式创作比拼贴更有灵魂，可现实一针见血：<strong>它可能难以形成完整系列。</strong></p>
+                            <p class="story-body-text">
+                                在与品牌的商业合作中，严苛的链条需要你对每一步的灵感来源进行反复确认和验证。于是我开始思考：在不杀死灵感的前提下，如何把专业设计流程融合到我的设计方式中，发挥内化灵感优势的同时，不被系列化的物理需求所限制。
+                            </p>
+                        </div>
+
+                        <p class="story-transition-bridge">
+                            我开始重构我的逻辑，去寻找一套内生与体系兼容的平衡法则 ——
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 中轴垂直分割线 -->
+                <div class="mid-axis-line"></div>
+
+                <!-- 右侧：适当居中下沉，解决顶天和底部大空 -->
+                <div class="right-layout-wrapper">
+                    <!-- VS 卡片 -->
+                    <div class="vs-container">
+                        <div class="vs-card left-card">
+                            <div class="placeholder-title">Moodboard</div>
+                            <div class="placeholder-sub">情绪、色调与物料意象</div>
+                            <div class="sketch-img-wrapper">
+                                <img src="moodboard.jpg" alt="情绪板 意象表达">
+                            </div>
+                        </div>
+                        <div class="vs-divider">VS.</div>
+                        <div class="vs-card right-card">
+                            <div class="placeholder-title">设计手稿</div>
+                            <div class="placeholder-sub">内化记忆的流淌</div>
+                            <div class="sketch-img-wrapper">
+                                <img src="design_manuscript.jpg" alt="真实设计手稿">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 思维分野 Contrast Matrix -->
+                    <div class="matrix-container">
+                        <div class="matrix-title">PROCESS COMPARISON // 思维分野</div>
+                        <div class="matrix-grid">
+                            <!-- Header -->
+                            <div class="matrix-header">维度</div>
+                            <div class="matrix-header">学院 / 商业设计师</div>
+                            <div class="matrix-header">野生设计师 (我)</div>
+
+                            <!-- Row 1 -->
+                            <div class="matrix-row-label">灵感发生</div>
+                            <div class="matrix-cell"><strong>外部检索 (Search)</strong><br>收集、裁剪与意象拼贴</div>
+                            <div class="matrix-cell"><strong>内生回响 (Echo)</strong><br>记忆内化与灵光乍现</div>
+
+                            <!-- Row 2 -->
+                            <div class="matrix-row-label">叙事逻辑</div>
+                            <div class="matrix-cell"><strong>碎片重组</strong><br>用拼贴板拼凑一个故事</div>
+                            <div class="matrix-cell"><strong>整体演绎</strong><br>用一个故事解释一整套设计</div>
+
+                            <!-- Row 3 -->
+                            <div class="matrix-row-label">商业特质</div>
+                            <div class="matrix-cell">严密逻辑支撑，易形成完整系列</div>
+                            <div class="matrix-cell">极具本能灵魂，但受困于系列化需求</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+
+        <!-- Slide 25 | 设计既需要体系，也需要本能 -->
+        <section id="slide-25" class="slide-viewport blur-reveal" style="background-color: #FAF9F6;">
+            <div class="title-area" style="text-align: center;">
+                <h3>设计既需要体系，也需要本能</h3>
+                <div class="sub">Structure and instinct. Both.</div>
+            </div>
+            <div class="hairline" style="margin: 20px auto; width: 40px;"></div>
+
+            <!-- 流程图 -->
+            <div class="flow-container" id="waterfallFlow">
+                <div class="flow-row first-row">
+                    <div class="flow-node" style="border-left: 3px solid var(--accent-gold);"><div class="node-title">灵感来源</div></div>
+                    <div class="flow-arrow">-&gt;</div>
+                    <div class="flow-node"><div class="node-title">灵感草图</div></div>
+                    <div class="flow-arrow">-&gt;</div>
+                    <div class="flow-node"><div class="node-title">反推灵感元素</div></div>
+                    <div class="flow-arrow">-&gt;</div>
+                    <div class="flow-node"><div class="node-title">验证灵感</div></div>
+                </div>
+                
+                <div class="flow-row">
+                    <div class="flow-node" style="background-color: var(--bg-linen);"><div class="node-title">Moodboard 解释设计</div></div>
+                    <div class="flow-arrow">-&gt;</div>
+                    <div class="flow-node" style="background-color: var(--bg-linen);"><div class="node-title">提炼灵感主题</div></div>
+                    <div class="flow-arrow">-&gt;</div>
+                    <div class="flow-node" style="background-color: var(--bg-linen);"><div class="node-title">增加外部灵感</div></div>
+                    <div class="flow-arrow">-&gt;</div>
+                    <div class="flow-node" style="background: var(--text-dark); color: var(--bg-cream);"><div class="node-title" style="color: var(--bg-cream);">构思完整叙事与系列化</div></div>
+                </div>
+            </div>
+
+            <div style="max-width: 800px; margin: 40px auto 0 auto; text-align: justify; line-height: 2;">
+                <p class="desc-text" style="font-size: 1.05rem;">
+                    <strong>内生灵感</strong>是创造性表达，蕴含着设计的深度；<strong>外部灵感</strong>是选择性表达，拓宽了设计的广度。
+                </p>
+                <p class="desc-text" style="font-size: 1.05rem; margin-top: 10px; color: var(--accent-brown);">
+                    在外部灵感元素的选择中，未必没有内生灵感的参与；内生灵感也未必不需要外界灵感的补充。它们是指向设计的两条路径，而设计师同时需要这两条路径。
+                </p>
+            </div>
+        </section>
+
+
+        <!-- Slide 26 | 章节扉页 -->
+        <section id="slide-26" class="slide-viewport chapter-dark-bg">
+            <div class="chapter-title-group blur-reveal">
+                <h2>我与市场之间，<br>好看，不代表是我</h2>
+                <p>Beauty does not necessarily belong to me.</p>
+            </div>
+        </section>
+
+
+        <!-- Slide 27 | 祛魅 -->
+        <section id="slide-27" class="slide-viewport blur-reveal" data-theme-trigger="dark-forest">
+            <div class="deep-monologue">
+                <div class="title-area" style="text-align: center; margin-bottom: 40px;">
+                    <h3>祛魅</h3>
+                    <div class="sub" style="transition: color 0.5s ease;">Beauty != Belonging</div>
+                </div>
+
+                <p>那些仔细研究过的设计、独特的单品、惊艳的搭配不断让我陷入一种都想拥有的幻觉。</p>
+                <p>当审美开始回归理性，我看见我正站在商业主理人的视角进行挑选。那些好看，不代表是我。在时尚的热情裹挟下，一切都是美的，即使不一定适合。</p>
+                
+                <p class="question-highlight">什么是服装真正的价值？</p>
+                
+                <p style="text-align: center; font-weight: 500; margin-bottom: 10px;">它是否进入我的生活。</p>
+                <p style="text-align: center; font-weight: 500; margin-bottom: 10px;">是否拥有属于我的场景。</p>
+                <p style="text-align: center; font-weight: 500; margin-bottom: 10px;">是否代替语言向世界宣布我是谁。</p>
+                
+                <div class="hairline" style="margin: 40px auto; width: 30px; background-color: currentColor;"></div>
+
+                <p style="opacity: 0.85; text-align: center; font-size: 1.05rem;">
+                    Palavas 很漂亮。但它不适合现在的我。
+                </p>
+                <p style="opacity: 0.85; text-align: center; font-size: 1.05rem; margin-top: 5px;">
+                    不属于我的年龄，不属于我的身份，也不属于我的生活场景。
+                </p>
+
+                <div class="conclusion-box" style="color: var(--text-dark);">
+                    “而这恰恰是我在 Showroom 学到最重要的一课。”
+                </div>
+            </div>
+        </section>
+
+
+        <!-- 完结过渡 -->
+        <section class="slide-viewport" style="align-items: center; text-align: center; background: var(--bg-linen); border: none;">
+            <div class="poem-end blur-reveal" style="color: var(--text-dark);">
+                <p>Section 03 浏览完毕</p>
+                <p style="font-size: 1rem; color: var(--accent-brown); margin-top: 10px;">灵感界定与市场祛魅</p>
+            </div>
+            <a href="index.html" class="blur-reveal" style="margin-top: 40px; text-decoration: none; color: var(--text-dark); font-size: 0.9rem; border: 1px solid var(--text-dark); padding: 10px 25px; transition: all 0.3s;">回到大厅大索引 &times;</a>
+        </section>
+
+    </main>
+
+    <script>
+        const observerOptions = { root: null, threshold: 0.12 };
+        const globalObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.blur-reveal').forEach(el => globalObserver.observe(el));
+
+        const flowContainer = document.getElementById('waterfallFlow');
+        if(flowContainer) {
+            const flowElements = flowContainer.querySelectorAll('.flow-node, .flow-arrow');
+            flowElements.forEach((el, index) => {
+                el.style.transitionDelay = `${index * 0.12}s`;
+            });
+        }
+
+        // 双触发主题滚动的事件监听器（处理 B 方案的冷静灰渐变与原有的墨绿深林）
+        const concreteTrigger = document.querySelector('[data-theme-trigger="concrete-atelier"]');
+        const forestTrigger = document.querySelector('[data-theme-trigger="dark-forest"]');
+
+        window.addEventListener('scroll', () => {
+            let activeTheme = '';
+
+            // 1. 触发 B 方案：冷静画室渐变
+            if (concreteTrigger) {
+                const rect = concreteTrigger.getBoundingClientRect();
+                if (rect.top < window.innerHeight / 1.5 && rect.bottom > window.innerHeight / 3) {
+                    activeTheme = 'concrete';
+                }
+            }
+
+            // 2. 触发深林墨绿：深邃质问
+            if (forestTrigger) {
+                const rect = forestTrigger.getBoundingClientRect();
+                if (rect.top < window.innerHeight / 1.5 && rect.bottom > window.innerHeight / 3) {
+                    activeTheme = 'forest';
+                }
+            }
+
+            // 应用主题
+            if (activeTheme === 'concrete') {
+                document.body.classList.add('theme-concrete');
+            } else if (activeTheme === 'forest') {
+                document.body.classList.remove('theme-concrete');
+                document.body.style.background = 'var(--bg-forest)';
+                document.body.style.color = 'var(--text-light)';
+                forestTrigger.querySelector('.sub').style.color = 'var(--accent-sand)';
+            } else {
+                document.body.classList.remove('theme-concrete');
+                document.body.style.background = 'var(--bg-cream)';
+                document.body.style.color = 'var(--text-dark)';
+                if (forestTrigger) forestTrigger.querySelector('.sub').style.color = 'var(--accent-brown)';
+            }
+        });
+    </script>
+</body>
+</html>
