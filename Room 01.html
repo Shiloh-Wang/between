@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Section 01 // 设计与市场之间</title>
+    <style>
+        :root {
+            --bg-cream: #F4F1EA;
+            --text-dark: #1C2621;
+            --accent-sand: #C5B9A5;
+            --accent-brown: #826958;
+            --font-serif-cn: "Source Han Serif SC", "Noto Serif CJK SC", "Songti SC", "SimSun", serif;
+            --font-serif-en: "Times New Roman", Times, serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background-color: var(--bg-cream); color: var(--text-dark); font-family: var(--font-serif-cn); letter-spacing: 0.05em; line-height: 1.8; overflow-x: hidden; }
+
+        /* --- 🌟 沿用 Index 的全局优雅滚动淡入过渡（呼吸感） --- */
+        .fade-in-section {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 1.4s cubic-bezier(0.16, 1, 0.3, 1), 
+                        transform 1.4s cubic-bezier(0.16, 1, 0.3, 1);
+            will-change: transform, opacity;
+        }
+        .fade-in-section.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* 返回大厅的顶部固定按钮 */
+        .back-to-index { position: fixed; top: 30px; left: 5%; z-index: 100; text-decoration: none; color: var(--accent-brown); font-family: var(--font-serif-en); font-size: 0.85rem; letter-spacing: 0.15em; text-transform: uppercase; border-bottom: 1px solid var(--accent-sand); padding-bottom: 4px; transition: opacity 0.3s; }
+        .back-to-index:hover { opacity: 0.7; }
+
+        /* --- 🌟 独家：创意阈值动态刻度线 --- */
+        .threshold-scale-container {
+            position: fixed;
+            right: 4%;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 280px;
+            width: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            z-index: 150;
+            pointer-events: none;
+        }
+        .scale-line {
+            position: relative;
+            width: 1px;
+            height: 100%;
+            background: rgba(28, 38, 33, 0.15);
+        }
+        /* 动态刻度游标 */
+        .scale-pointer {
+            position: absolute;
+            right: -3px;
+            top: 0; /* JS 控制这个比例 */
+            width: 7px;
+            height: 7px;
+            background: var(--accent-brown);
+            border-radius: 50%;
+            transition: top 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .scale-labels {
+            position: absolute;
+            right: 15px;
+            height: 100%;
+            width: 100px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: flex-end;
+            font-family: var(--font-serif-en);
+            font-size: 0.7rem;
+            color: var(--accent-brown);
+            opacity: 0.6;
+            letter-spacing: 0.1em;
+        }
+
+        .slide-viewport { width: 100%; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 100px 12% 100px 8%; border-bottom: 1px solid rgba(28, 38, 33, 0.08); position: relative; }
+        
+        /* 丝滑延伸的裁线 */
+        .hairline { 
+            width: 60px; 
+            height: 1px; 
+            background-color: var(--text-dark); 
+            margin: 25px 0; 
+            opacity: 0.5; 
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 1.4s cubic-bezier(0.16, 1, 0.3, 1) 0.2s;
+        }
+        .is-visible .hairline { transform: scaleX(1); }
+
+        /* Slide 04 | 章节扉页 */
+        #slide-04 { background-color: #1C2621; color: #F4F1EA; text-align: center; align-items: center; }
+        .chapter-title-group h2 { font-size: 2rem; font-weight: 400; line-height: 1.6; letter-spacing: 0.1em; max-width: 700px; }
+        .chapter-title-group p { font-family: var(--font-serif-en); font-style: italic; color: var(--accent-sand); margin-top: 20px; font-size: 1.2rem; }
+
+        /* 通用双列混合布局 */
+        .content-grid-2 { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 60px; align-items: center; width: 100%; }
+        .title-area h3 { font-size: 1.8rem; font-weight: 500; margin-bottom: 5px; }
+        .title-area .sub { font-family: var(--font-serif-en); font-size: 0.9rem; color: var(--accent-brown); letter-spacing: 0.15em; text-transform: uppercase; }
+        .desc-text { font-size: 1.05rem; opacity: 0.9; text-align: justify; margin-top: 25px; }
+
+        /* 图片与手写批注样式 */
+        .img-card { display: flex; flex-direction: column; background: #FAF9F6; padding: 12px; border: 1px solid rgba(0,0,0,0.03); position: relative; }
+        .img-card img { width: 100%; height: auto; object-fit: cover; filter: grayscale(15%); }
+        
+        .handwritten-note { font-size: 0.88rem; color: var(--accent-brown); margin-top: 12px; line-height: 1.5; text-align: justify; position: relative; padding-left: 15px; }
+        
+        /* SVG 动态书写划线 */
+        .note-svg-line { position: absolute; left: 2px; top: 2px; width: 6px; height: calc(100% - 4px); }
+        .note-svg-line path { stroke: var(--accent-sand); stroke-width: 2; fill: none; stroke-linecap: round; stroke-dasharray: 150; stroke-dashoffset: 150; transition: stroke-dashoffset 1.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .is-visible .note-svg-line path { stroke-dashoffset: 0; }
+
+        /*错落与微倾斜样式 */
+        .collage-container { display: flex; justify-content: center; align-items: center; gap: 35px; width: 100%; }
+        .collage-card-left, .collage-card-right { flex: 1; max-width: 48%; transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); }
+        .see-select-left { transform: translateY(20px) rotate(-1.5deg); }
+        .see-select-right { transform: translateY(-20px) rotate(1.2deg); }
+        .case-left { transform: translateY(-15px) rotate(1deg); z-index: 2; }
+        .case-right { transform: translateY(25px) rotate(-1.5deg); margin-left: -20px; z-index: 1; }
+        .collage-card-left:hover, .collage-card-right:hover { transform: translateY(0) rotate(0) scale(1.03); z-index: 10; }
+
+        /* 对话气泡 */
+        .dialogue-container { display: flex; flex-direction: column; gap: 30px; margin-top: 20px; }
+        .bubble { background: #EFEBE2; padding: 25px 30px; border-radius: 4px; max-width: 85%; position: relative; }
+        .bubble.buyer-online { align-self: flex-start; border-left: 4px solid var(--accent-brown); }
+        .bubble.buyer-offline { align-self: flex-end; background: #E6E1D6; border-right: 4px solid var(--text-dark); text-align: right; }
+        .bubble-text { font-size: 1.15rem; font-weight: 500; margin-bottom: 5px; }
+        .bubble-meta { font-size: 0.8rem; color: var(--accent-brown); letter-spacing: 0.05em; }
+
+        /* 爆款公式 */
+        .formula-box { display: flex; flex-direction: column; justify-content: center; align-items: center; background: #EFEBE2; border: 1px solid rgba(0,0,0,0.05); padding: 40px; text-align: center; }
+        .formula-core { font-size: 1.5rem; font-weight: 500; letter-spacing: 0.1em; color: var(--accent-brown); margin: 20px 0; }
+        .formula-result { background: var(--text-dark); color: #FFF; padding: 10px 30px; font-size: 1rem; letter-spacing: 0.2em; }
+
+        /* 颜色叙事 3列图 */
+        .image-gallery-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; width: 100%; margin-top: 30px; }
+
+        /* 子页面结尾 */
+        #slide-11 { text-align: center; background-color: #EFEBE2; align-items: center; }
+        .poem-end { font-size: 1.25rem; line-height: 2.5; max-width: 600px; margin: 0 auto; }
+
+        /* 气泡式“设计师手记”悬浮窗 */
+        .floating-notebook-trigger { position: fixed; bottom: 40px; right: 40px; width: 46px; height: 46px; background-color: var(--text-dark); color: var(--bg-cream); border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; z-index: 200; font-family: var(--font-serif-en); font-size: 1.2rem; animation: subtle-pulse 3s infinite ease-in-out; }
+        @keyframes subtle-pulse { 0% { transform: scale(1); } 50% { transform: scale(1.06); } 100% { transform: scale(1); } }
+        .floating-notebook-popover { position: absolute; bottom: 60px; right: 10px; width: 320px; background-color: #FAF9F6; border: 1px solid var(--accent-sand); padding: 25px; border-radius: 4px; box-shadow: 0 20px 50px rgba(28,38,33,0.12); opacity: 0; visibility: hidden; transform: translateY(15px) scale(0.95); transform-origin: bottom right; transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1); color: var(--text-dark); text-align: justify; pointer-events: none; }
+        .floating-notebook-trigger:hover { background-color: var(--accent-brown); animation-play-state: paused; }
+        .floating-notebook-trigger:hover .floating-notebook-popover { opacity: 1; visibility: visible; transform: translateY(0) scale(1); }
+        .popover-title { font-family: var(--font-serif-en); font-size: 0.75rem; color: var(--accent-brown); border-bottom: 1px dashed var(--accent-sand); padding-bottom: 6px; margin-bottom: 12px; letter-spacing: 0.1em; }
+        .popover-body { font-size: 0.9rem; line-height: 1.7; color: rgba(28, 38, 33, 0.9); }
+
+        @media (max-width: 992px) {
+            .content-grid-2 { grid-template-columns: 1fr; gap: 40px; }
+            .image-gallery-3 { grid-template-columns: 1fr; gap: 20px; }
+            .slide-viewport { padding: 80px 6%; }
+            .back-to-index { top: 20px; left: 6%; }
+            .threshold-scale-container { display: none; } /* 移动端隐藏精密刻度线 */
+            .collage-container { flex-direction: column; gap: 40px; }
+            .collage-card-left, .collage-card-right { max-width: 100%; transform: none !important; margin-left: 0 !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 固定返回按钮 -->
+    <a href="index.html#slide-index" class="back-to-index">&larr; Return to Index</a>
+
+    <!-- 🌟 创意阈值动态刻度线容器 -->
+    <div class="threshold-scale-container">
+        <div class="scale-labels">
+            <span>* CONCEPT</span>
+            <span>* FORM</span>
+            <span>* MATERIAL</span>
+            <span>* MARKET</span>
+        </div>
+        <div class="scale-line">
+            <div class="scale-pointer" id="scalePointer"></div>
+        </div>
+    </div>
+
+    <!-- 悬浮碎碎念气泡 -->
+    <div class="floating-notebook-trigger">
+        <span>+</span>
+        <div class="floating-notebook-popover">
+            <div class="popover-title">CURATOR'S NOTE // 手记余白</div>
+            <div class="popover-body">
+                在 Section 01 的策展中，我最想探讨的是一种“拉扯”。品牌设计师往往带着洁癖般的艺术理想，而买手则握着冷冰冰的预算报表。爆款的诞生，往往不是某一方的妥协，而是创意阈值恰好撞上了市场能容忍的最高极限。
+            </div>
+        </div>
+    </div>
+
+    <main>
+
+        <!-- Slide 04 | 章节扉页 -->
+        <section id="slide-04" class="slide-viewport">
+            <div class="chapter-title-group">
+                <h2>设计与市场之间，爆款究竟是如何诞生的？</h2>
+                <p>How does a bestseller come to life?</p>
+            </div>
+        </section>
+
+        <!-- Slide 05 | 被看见：审美直觉与市场共识（呼吸感淡入） -->
+        <section id="slide-05" class="slide-viewport fade-in-section">
+            <div class="content-grid-2">
+                <div class="text-area">
+                    <div class="title-area">
+                        <h3>被看见：审美直觉与市场共识</h3>
+                        <div class="sub">A matter of taste</div>
+                    </div>
+                    <div class="hairline"></div>
+                    <p class="desc-text">
+                        那些被设计 catch 的第一眼，无关市场，仅基于对创意和审美的直觉。当我发现最初吸引我的设计同样持续被买手翻牌，我意识到 market 存在“共识性审美” —— 对创意敏感，以及某些设计元素是跨越客群的。
+                    </p>
+                </div>
+                
+                <div class="collage-container">
+                    <div class="collage-card-left see-select-left">
+                        <div class="img-card">
+                            <img src="纱质蝙蝠袖上衣_首选官图.jpg" alt="线条流动自然的纱质蝙蝠袖上衣">
+                            <div class="handwritten-note">
+                                <svg class="note-svg-line"><path d="M2,2 C5,25 1,60 3,120" /></svg>
+                                <strong>线条流动自然的纱质蝙蝠袖上衣：</strong>抽褶的雪纺皱让垂感线条灵动飘逸，一言一行之间形成流动的呼吸感。
+                            </div>
+                        </div>
+                    </div>
+                    <div class="collage-card-right see-select-right">
+                        <div class="img-card">
+                            <img src="绒皮与金属光泽雪纺大胆对撞的米色半裙.jpg" alt="绒皮与金属光泽雪纺对撞米色半裙">
+                            <div class="handwritten-note">
+                                <svg class="note-svg-line"><path d="M2,2 C4,30 2,70 3,130" /></svg>
+                                <strong>绒皮与金属光泽雪纺对撞半裙：</strong>两种面料虽厚度、质感、光泽不同，但由于同色系蕾丝花边的柔化衔接，拼接毫无违和感。
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 06 | 被选择：审美只是选品的起点（呼吸感淡入） -->
+        <section id="slide-06" class="slide-viewport fade-in-section">
+            <div class="content-grid-2">
+                <div class="collage-container">
+                    <div class="collage-card-left see-select-left">
+                        <div class="img-card">
+                            <img src="Howwell麻感针织纽结马甲_平面.jpg" alt="平面展示">
+                            <div class="handwritten-note">
+                                <svg class="note-svg-line"><path d="M2,2 C3,15 1,35 2,60" /></svg>
+                                Howwell麻感DNA针织纽结马甲
+                            </div>
+                        </div>
+                    </div>
+                    <div class="collage-card-right see-select-right">
+                        <div class="img-card">
+                            <img src="Howwell麻感针织纽结马甲_模特.jpg" alt="模特上身展示">
+                            <div class="handwritten-note">
+                                <svg class="note-svg-line"><path d="M2,2 C4,15 2,35 3,60" /></svg>
+                                上身效果
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-area">
+                    <div class="title-area">
+                        <h3>被选择：审美只是选品的起点</h3>
+                        <div class="sub">Good Design &ne; Good Product</div>
+                    </div>
+                    <div class="hairline"></div>
+                    <p class="desc-text" style="margin-bottom: 30px;">
+                        买手的客群、销售渠道等因素，决定了他们最终的决策具有差异性。客群聚焦需求与场景，渠道决定对风险的容忍度。<strong>买手选择的从来不只是衣服。</strong>
+                    </p>
+                    
+                    <div class="dialogue-container">
+                        <div class="bubble buyer-online">
+                            <div class="bubble-text">“这个 DNA 马甲绝对是爆款。”</div>
+                            <div class="bubble-meta">— 线上博主型买手</div>
+                        </div>
+                        <div class="bubble buyer-offline">
+                            <div class="bubble-text">“这个我们的客户穿不出来。”</div>
+                            <div class="bubble-meta">— 线下实体店买手</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 07 | 被验证：爆款公式（呼吸感淡入） -->
+        <section id="slide-07" class="slide-viewport fade-in-section">
+            <div class="content-grid-2">
+                <div class="text-area">
+                    <div class="title-area">
+                        <h3>被验证：爆款公式</h3>
+                        <div class="sub">The Bestseller Formula</div>
+                    </div>
+                    <div class="hairline"></div>
+                    
+                    <div class="formula-box">
+                        <p style="font-size:0.9rem; opacity:0.7;">爆款并非单纯由设计决定，它诞生于：</p>
+                        <div class="formula-core">设计 &times; 客群 &times; 渠道</div>
+                        <div class="formula-result">三环交汇的锚点</div>
+                    </div>
+                    
+                    <p class="desc-text" style="margin-top: 30px; border-top: 1px solid rgba(0,0,0,0.05); padding-top:20px;">
+                        跨越客群渠道的设计语言之一是，<strong>创新恰好停留在大多数人能够理解的位置</strong>。其次，褶皱设计放大了面料轻盈感、灵动感。好的设计不是让面料承载设计，而是让设计释放面料。
+                    </p>
+                </div>
+                
+                <div class="img-card" style="max-width: 450px; margin: 0 auto;">
+                    <img src="雾蓝色泰米尔晨昏上衣_品牌官图.jpg" alt="Palavas雾蓝色泰米尔晨昏上衣">
+                    <div class="handwritten-note" style="margin-top:15px;">
+                        <svg class="note-svg-line"><path d="M2,2 C5,15 1,40 2,75" /></svg>
+                        <strong>案例分析：</strong>Palavas 雾蓝色泰米尔晨昏上衣
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 08 | 爆款案例：颜色的叙事（呼吸感淡入） -->
+        <section id="slide-08" class="slide-viewport fade-in-section">
+            <div class="title-area">
+                <h3>爆款案例：消费者选择的不是颜色本身，而是颜色所完成的叙事。</h3>
+                <div class="sub">The Narrative of Color</div>
+            </div>
+            <div class="hairline" style="width: 200px;"></div>
+            
+            <p class="desc-text" style="max-width: 850px; margin-bottom: 20px;">
+                这一款有三种颜色，为什么是它？名为“泰米尔晨昏上衣”，主体<strong>雾蓝与金属光泽蕾丝边</strong>的搭配营造晨昏时刻第一缕阳光划破深蓝色天际的冷静与梦幻，高级而层次感立体，是真正接近“晨昏感”的色彩表达。米白色治愈百搭，却容易淡化褶皱层次；嫩粉色则少女感风格指向过于明确，客群受限。<strong>爆款颜色往往不是最安全的，而是最能讲故事的。</strong>
+            </p>
+
+            <div class="image-gallery-3">
+                <div class="img-card">
+                    <img src="泰米尔晨昏上衣_雾蓝色白底图.jpg" alt="雾蓝色">
+                    <div class="handwritten-note">
+                        <svg class="note-svg-line"><path d="M2,2 C4,10 1,25 2,45" /></svg>
+                        主推：雾蓝色（完成深邃的晨昏叙事）
+                    </div>
+                </div>
+                <div class="img-card">
+                    <img src="泰米尔晨昏上衣_米白色白底图.jpg" alt="米白色">
+                    <div class="handwritten-note">
+                        <svg class="note-svg-line"><path d="M2,2 C3,10 2,25 3,45" /></svg>
+                        米白色（治愈百搭，但缺乏褶皱层次）
+                    </div>
+                </div>
+                <div class="img-card">
+                    <img src="泰米尔晨昏上衣_嫩粉色白底图.jpg" alt="嫩粉色">
+                    <div class="handwritten-note">
+                        <svg class="note-svg-line"><path d="M2,2 C4,10 1,25 2,45" /></svg>
+                        嫩粉色（风格偏窄，客群指向受限）
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 09 | 爆款案例：身份验证（呼吸感淡入） -->
+        <section id="slide-09" class="slide-viewport fade-in-section">
+            <div class="content-grid-2">
+                <div class="collage-container">
+                    <div class="collage-card-left case-left">
+                        <div class="img-card">
+                            <img src="854cb8474f7637c516e94c76a2d09f33.jpg" alt="芭蕾风蕾丝上衣">
+                            <div class="handwritten-note">
+                                <svg class="note-svg-line"><path d="M2,2 C3,15 1,35 2,55" /></svg>
+                                经典设计：品牌Lookbook中的原始效果呈现
+                            </div>
+                        </div>
+                    </div>
+                    <div class="collage-card-right case-right">
+                        <div class="img-card">
+                            <img src="1d69a7e39d8c292d1a0d6701554a1617.jpg" alt="剧照剧集同款">
+                            <div class="handwritten-note">
+                                <svg class="note-svg-line"><path d="M2,2 C4,15 2,35 3,55" /></svg>
+                                身份印记：《玫瑰的故事》出圈后的品牌认领
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-area">
+                    <div class="title-area">
+                        <h3>爆款案例：为什么一件材质并不优秀的衣服成为了爆款？</h3>
+                        <div class="sub">Endorsement is not quality. But it is validation.</div>
+                    </div>
+                    <div class="hairline"></div>
+                    <p class="desc-text">
+                        手感偏硬，面料粗糙，但“刘亦菲同款”的身份自带明确高效的时尚语言，吸引络绎不绝的买手为它而来。材质问题可能影响复购，但未必影响第一次下单。<strong>被验证过且自带身份 icon 的设计，递给买手与消费者明确的参考系。</strong>
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 10 | 被传递：爆款的传播具有自发性（呼吸感淡入） -->
+        <section id="slide-10" class="slide-viewport fade-in-section" style="background-color: #FAF9F6;">
+            <div class="title-area" style="text-align: center;">
+                <h3>被传递：爆款的传播具有自发性</h3>
+                <div class="sub">Momentum Builds</div>
+            </div>
+            <div class="hairline" style="margin: 25px auto; width: 40px;"></div>
+            
+            <div style="max-width: 600px; margin: 20px auto; text-align: center;">
+                <div class="bubble buyer-online" style="max-width:100%; margin-bottom: 15px; font-style: italic;">“哪些是最好买的款？”</div>
+                <div class="bubble buyer-online" style="max-width:100%; margin-bottom: 15px; font-style: italic; padding-left: 50px;">“主推款是哪些？”</div>
+                <div class="bubble buyer-online" style="max-width:100%; margin-bottom: 25px; font-style: italic; padding-left: 70px;">“试的最多的款是哪些？”</div>
+                
+                <p class="desc-text" style="text-align: center; font-size: 1.1rem; color: var(--accent-brown); margin-top: 30px;">
+                    买手们也在寻找“确定性”，与其冒险推一个“可能火”的款，不如跟随“已经被验证过”的款。
+                </p>
+            </div>
+        </section>
+
+        <!-- Slide 11 | 展厅一章尾（呼吸感淡入） -->
+        <section id="slide-11" class="slide-viewport fade-in-section">
+            <div class="poem-end">
+                <p>爆款的诞生，比设计复杂，比运气具体。</p>
+                <p style="color: var(--accent-brown);">好的设计会形成共识。</p>
+                <p>但真正决定成交的，</p>
+                <p style="font-weight: 500;">永远是它与谁相遇。</p>
+            </div>
+            <a href="index.html#slide-index" style="margin-top: 50px; text-decoration: none; color: var(--text-dark); font-size: 0.9rem; border: 1px solid var(--text-dark); padding: 10px 25px;">退出当前展厅 &times;</a>
+        </section>
+
+    </main>
+
+    <script>
+        // 1. 🌟 全局 Intersection Observer 监听器（用于控制 Index 级别的呼吸淡入与 SVG 划线触发）
+        const observerOptions = {
+            root: null,
+            threshold: 0.15
+        };
+
+        const globalObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                }
+            });
+        }, observerOptions);
+
+        // 统一绑定淡入和 SVG 线条触发
+        document.querySelectorAll('.fade-in-section').forEach(section => {
+            globalObserver.observe(section);
+        });
+
+        // 2. 🌟 刻度尺游标精密计算逻辑
+        const scalePointer = document.getElementById('scalePointer');
+        
+        window.addEventListener('scroll', () => {
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            
+            if (scrollHeight > 0) {
+                // 计算全局滚动百分比 (0 到 100)
+                const scrollPercent = (scrollTop / scrollHeight) * 100;
+                // 对应刻度尺容器的总高度减去游标自身的高度 (280px - 7px = 273px)
+                const pointerTop = (scrollPercent / 100) * 273;
+                scalePointer.style.top = `${pointerTop}px`;
+            }
+        });
+    </script>
+</body>
+</html>
