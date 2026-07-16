@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>《之间》BETWEEN // SHILOH.W 作品集手记</title>
+    <style>
+        /* --- 核心高级色盘与字体定义 --- */
+        :root {
+            --bg-cream: #F4F1EA;       /* 深米色底，带有纸张质感 */
+            --text-dark: #1C2621;      /* 极深森林绿 */
+            --accent-sand: #C5B9A5;    /* 沉静沙色 */
+            --accent-brown: #826958;   /* 烟熏暖棕 */
+            --font-serif-cn: "Source Han Serif SC", "Noto Serif CJK SC", "Songti SC", "SimSun", serif;
+            --font-serif-en: "Times New Roman", Times, serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-cream);
+            color: var(--text-dark);
+            font-family: var(--font-serif-cn);
+            overflow-x: hidden;
+            letter-spacing: 0.05em;
+            line-height: 1.8;
+        }
+
+        /* --- 🌟 全局优雅滚动淡入过渡（呼吸感） --- */
+        .fade-in-section {
+            opacity: 0;
+            transform: translateY(40px); /* 初始向下位移40px */
+            transition: opacity 1.4s cubic-bezier(0.16, 1, 0.3, 1), 
+                        transform 1.4s cubic-bezier(0.16, 1, 0.3, 1);
+            will-change: transform, opacity;
+        }
+
+        /* 当元素滚动进入视口时激活 */
+        .fade-in-section.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* 专门给延迟出现的子元素（如分割线、副标题）准备的呼吸类 */
+        .delay-1 { transition-delay: 0.2s; }
+        .delay-2 { transition-delay: 0.4s; }
+
+        /* --- 固定全屏展厅容器 --- */
+        .slide-viewport {
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            padding: 120px 10%;
+            border-bottom: 1px solid rgba(28, 38, 33, 0.05);
+        }
+
+        .hairline {
+            width: 80px;
+            height: 1px;
+            background-color: var(--text-dark);
+            margin: 30px 0;
+            opacity: 0.7;
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 1.6s cubic-bezier(0.16, 1, 0.3, 1) 0.3s;
+        }
+        .is-visible .hairline {
+            transform: scaleX(1); /* 滚动到时，线条像走线一样丝滑延伸 */
+        }
+
+        /* ==========================================================================
+           SLIDE 01 | 封面页（探照灯背景效果）
+           ========================================================================== */
+        #slide-01 {
+            justify-content: space-between;
+            padding-top: 15vh;
+            padding-bottom: 10vh;
+            background-color: #121815; 
+            color: #FAF9F6;
+            overflow: hidden;
+        }
+
+        .spotlight-bg-base {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('Showroom%E6%B0%9B%E5%9B%B4%E6%84%9F.jpg');
+            background-size: cover;
+            background-position: center;
+            opacity: 0.08; 
+            filter: grayscale(100%) blur(4px);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .spotlight-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('Showroom%E6%B0%9B%E5%9B%B4%E6%84%9F.jpg');
+            background-size: cover;
+            background-position: center;
+            z-index: 2;
+            pointer-events: none;
+            mask-image: radial-gradient(circle 180px at var(--mouse-x, -50%) var(--mouse-y, -50%), black 100%, transparent 100%);
+            -webkit-mask-image: radial-gradient(circle 180px at var(--mouse-x, -50%) var(--mouse-y, -50%), black 60%, transparent 100%);
+            opacity: 0.85; 
+            transition: opacity 0.5s ease;
+        }
+
+        .cover-content-wrapper {
+            position: relative;
+            z-index: 3;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%;
+            flex-grow: 1;
+            pointer-events: none; 
+        }
+
+        .cover-title-group h1 {
+            font-size: 5.5rem;
+            font-weight: 400;
+            line-height: 1.1;
+            letter-spacing: 0.12em;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .cover-title-group .en-title {
+            font-family: var(--font-serif-en);
+            font-size: 2.4rem;
+            font-style: italic;
+            color: var(--accent-sand);
+            margin-top: 10px;
+            letter-spacing: 0.15em;
+        }
+
+        .cover-subtitle {
+            font-size: 1.25rem;
+            margin-top: 40px;
+            font-weight: 300;
+            color: rgba(250, 249, 246, 0.8);
+        }
+
+        .cover-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            border-top: 1px solid rgba(250, 249, 246, 0.15);
+            padding-top: 30px;
+            font-size: 0.85rem;
+            color: var(--accent-sand);
+        }
+
+        /* ==========================================================================
+           SLIDE 02 | 🌟 全新设计的解构主义诗歌排版 🌟
+           ========================================================================== */
+        #slide-02 {
+            background-color: #EFEBE2;
+            padding: 10vh 12%;
+            display: block; /* 采用自由流式布局 */
+        }
+
+        .poetry-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            position: relative;
+            min-height: 70vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        /* 块级排版：左侧叙事组 */
+        .poem-block-left {
+            align-self: flex-start;
+            text-align: left;
+            max-width: 450px;
+            margin-top: 5vh;
+        }
+
+        /* 块级排版：右侧回应组 */
+        .poem-block-right {
+            align-self: flex-end;
+            text-align: left;
+            max-width: 450px;
+            margin-top: 8vh;
+            padding-left: 40px;
+            border-left: 1px solid rgba(130, 105, 88, 0.15);
+        }
+
+        /* 块级排版：落款尾声组 */
+        .poem-block-footer {
+            align-self: flex-end;
+            text-align: right;
+            margin-top: 10vh;
+            width: 100%;
+        }
+
+        .new-poem-line {
+            font-size: 1.35rem;
+            line-height: 2.2;
+            margin-bottom: 18px;
+            color: var(--text-dark);
+            position: relative;
+        }
+
+        .poem-tag {
+            font-family: var(--font-serif-en);
+            font-size: 0.75rem;
+            color: var(--accent-brown);
+            position: absolute;
+            left: -35px;
+            top: 2px;
+            opacity: 0.6;
+        }
+
+        .new-poem-focus {
+            font-size: 1.45rem;
+            color: var(--accent-brown);
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+
+        .new-poem-author {
+            font-size: 1rem;
+            color: var(--text-dark);
+            letter-spacing: 0.15em;
+            display: inline-block;
+            border-bottom: 1px solid var(--text-dark);
+            padding-bottom: 6px;
+        }
+
+        /* ==========================================================================
+           SLIDE 03 | 引言（整张图片满铺 45% 透明度）
+           ========================================================================== */
+        #slide-03 {
+            background-color: #1A1F1C; 
+            color: #FAF9F6;
+            overflow: hidden;
+        }
+
+        .intro-bg-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('%E7%A9%BA%E9%95%9C_Howwell%E5%AE%98%E5%9B%BE.jpg');
+            background-size: cover;
+            background-position: center;
+            opacity: 0.45; 
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .intro-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .intro-header h2 {
+            font-size: 2.2rem;
+            font-weight: 500;
+            line-height: 1.4;
+            max-width: 800px;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+        }
+
+        .intro-header .en-sub {
+            font-family: var(--font-serif-en);
+            font-size: 1.1rem;
+            font-style: italic;
+            color: var(--accent-sand);
+            margin-top: 10px;
+            letter-spacing: 0.08em;
+        }
+
+        #slide-03 .hairline {
+            background-color: var(--accent-sand);
+        }
+
+        .intro-body-text {
+            font-size: 1.15rem;
+            line-height: 2.2;
+            margin-top: 40px;
+            max-width: 650px;
+            opacity: 0.95;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+        }
+
+        /* ==========================================================================
+           SLIDE INDEX | 展厅控制索引页面
+           ========================================================================== */
+        #slide-index {
+            background-color: #F7F5F0;
+            justify-content: flex-start;
+            padding-top: 140px;
+        }
+
+        .menu-header h2 {
+            font-family: var(--font-serif-en);
+            font-size: 2.2rem;
+            letter-spacing: 0.15em;
+            font-weight: 400;
+        }
+        
+        .menu-header span {
+            font-size: 0.9rem;
+            color: var(--accent-brown);
+            display: block;
+            margin-top: 5px;
+        }
+
+        .grid-showcases {
+            width: 100%;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 35px;
+            margin-top: 40px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .showcase-link-card {
+            background-color: rgba(197, 185, 165, 0.08);
+            border: 1px solid rgba(28, 38, 33, 0.06);
+            padding: 45px 35px;
+            text-decoration: none;
+            color: var(--text-dark);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 420px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .card-hover-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            opacity: 0;
+            transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s ease;
+            transform: scale(1.05);
+            z-index: 1;
+        }
+
+        .card-bg-1 { background-image: url('%E9%A6%96%E9%A5%B0%E7%A9%BA%E9%95%9C%20%282%29.jpg'); }
+        .card-bg-2 { background-image: url('%E9%A6%96%E9%A5%B0%E7%A9%BA%E9%95%9C%20%283%29.jpg'); }
+        .card-bg-3 { background-image: url('首饰空镜.jpg'); }
+
+        .card-content-overlay {
+            position: relative;
+            z-index: 2;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            flex-grow: 1;
+        }
+
+        .showcase-link-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 25px 50px rgba(28, 38, 33, 0.12);
+            border-color: var(--accent-sand);
+        }
+
+        .showcase-link-card:hover .card-hover-bg {
+            opacity: 0.18; 
+            transform: scale(1);
+        }
+
+        .card-num {
+            font-family: var(--font-serif-en);
+            font-size: 0.9rem;
+            color: var(--accent-brown);
+            letter-spacing: 0.1em;
+        }
+
+        .card-title-group { margin-top: 30px; }
+        .card-title-group h4 { font-size: 1.6rem; font-weight: 500; margin-bottom: 8px; line-height: 1.3; }
+        .card-title-group span { font-family: var(--font-serif-en); font-size: 0.85rem; color: var(--accent-brown); display: block; }
+        .card-desc { font-size: 0.9rem; opacity: 0.7; margin-top: 15px; line-height: 1.6; text-align: justify; }
+        .card-action-btn { font-family: var(--font-serif-en); font-size: 0.8rem; letter-spacing: 0.15em; color: var(--accent-brown); margin-top: 30px; font-weight: bold; transition: transform 0.3s ease; }
+        
+        .showcase-link-card:hover .card-action-btn {
+            transform: translateX(5px);
+        }
+
+        /* ==========================================================================
+           SLIDE 28 | 终章扉页
+           ========================================================================== */
+        #slide-28 {
+            background-color: #1C2621;
+            color: #F4F1EA;
+        }
+
+        #slide-28 .hairline {
+            background-color: var(--accent-sand);
+        }
+
+        .epilogue-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 40px 60px;
+            max-width: 1100px;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .aphorism-item {
+            border-left: 2px solid rgba(197, 185, 165, 0.2);
+            padding-left: 20px;
+        }
+
+        .aphorism-cn {
+            font-size: 1.1rem;
+            font-weight: 400;
+            margin-bottom: 6px;
+        }
+
+        .aphorism-en {
+            font-family: var(--font-serif-en);
+            font-size: 0.85rem;
+            color: var(--accent-sand);
+            opacity: 0.8;
+            line-height: 1.4;
+        }
+
+        /* ==========================================================================
+           SLIDE 29 | 封底
+           ========================================================================== */
+        #slide-29 {
+            background-color: #EFEBE2;
+            align-items: center;
+            text-align: center;
+        }
+
+        .back-summary {
+            font-size: 1.15rem;
+            line-height: 2.4;
+            max-width: 600px;
+            margin-bottom: 40px;
+        }
+
+        .back-stay {
+            font-size: 1.4rem;
+            letter-spacing: 0.15em;
+            color: var(--accent-brown);
+            margin-top: 20px;
+        }
+
+        .fin {
+            font-family: var(--font-serif-en);
+            font-size: 1rem;
+            font-style: italic;
+            letter-spacing: 0.3em;
+            margin-top: 60px;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+
+    <main>
+        
+        <!-- Slide 01 | 封面页（默认自带顺滑登场） -->
+        <section id="slide-01" class="slide-viewport">
+            <div class="spotlight-bg-base"></div>
+            <div class="spotlight-overlay" id="spotlight"></div>
+            
+            <div class="cover-content-wrapper">
+                <div class="cover-title-group">
+                    <h1>《之间》</h1>
+                    <div class="en-title">BETWEEN</div>
+                    <p class="cover-subtitle">Fashion Happens In-Between</p>
+                </div>
+                
+                <div class="cover-footer">
+                    <div class="footer-left">
+                        <span>上海时装周 Showroom 买手选品观察手记</span>
+                    </div>
+                    <div class="footer-right" style="text-align: right;">
+                        <span>思淇 Shiloh.W &nbsp;//&nbsp; 2026.3.25 - 3.30</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- Slide 02 | 🌟 全新重构的：解构主义书页诗歌 🌟 -->
+        <section id="slide-02" class="slide-viewport fade-in-section">
+            <div class="poetry-container">
+                
+                <!-- 左半部分：市场与陈列的解构 -->
+                <div class="poem-block-left">
+                    <div class="new-poem-line"><span class="poem-tag">*01</span>时尚从来不是单向发生的。</div>
+                    <div class="new-poem-line">它诞生于设计与市场之间，</div>
+                    <div class="new-poem-line">成熟于陈列与身体之间。</div>
+                </div>
+
+                <!-- 右半部分：趋势与自我的交错回应 -->
+                <div class="poem-block-right">
+                    <div class="new-poem-line"><span class="poem-tag">*02</span>流动于趋势与消费之间，</div>
+                    <div class="new-poem-line">最终回归人与自我之间。</div>
+                </div>
+
+                <!-- 底部：点题叙事与落款 -->
+                <div class="poem-block-footer">
+                    <div class="new-poem-focus">我在名为「之间」的场域，先看见，再成为。</div>
+                    <div class="new-poem-author">——思淇 Shiloh.W</div>
+                </div>
+
+            </div>
+        </section>
+
+
+        <!-- Slide 03 | 引言（满铺背景 + 呼吸感淡入） -->
+        <section id="slide-03" class="slide-viewport fade-in-section">
+            <div class="intro-bg-image"></div>
+            
+            <div class="intro-content">
+                <div class="intro-header">
+                    <h2>设计，应当如何平衡创意与市场需求？</h2>
+                    <div class="en-sub delay-1">A question I carried into the showroom.</div>
+                </div>
+                <div class="hairline"></div>
+                <div class="intro-body-text delay-2">
+                    <p>我带着一个问题进入这里：</p>
+                    <p>六天之后，我没有得到标准答案。</p>
+                    <p style="color: var(--accent-sand); font-weight: 500; margin-top: 15px;">但我见证了许多答案的诞生。</p>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- SLIDE INDEX | 展厅控制索引页面（呼吸感淡入） -->
+        <section id="slide-index" class="slide-viewport fade-in-section">
+            <div class="menu-header">
+                <h2>THE EXHIBIT ROOM</h2>
+                <span>选择一个维度切入「之间」的观察场域</span>
+                <div class="hairline" style="width: 50px; margin: 15px 0 0 0;"></div>
+            </div>
+            
+            <div class="grid-showcases">
+                <!-- 展厅 01 -->
+                <a href="Room 01.html" class="showcase-link-card">
+                    <div class="card-hover-bg card-bg-1"></div>
+                    <div class="card-content-overlay">
+                        <div class="card-num">SECTION I</div>
+                        <div class="card-title-group">
+                            <h4>纯粹创意<br>与设计阈值</h4>
+                            <span>Creative Threshold</span>
+                            <p class="card-desc">探索设计师品牌在廓形、面料及概念上的含蓄表达，以及如何触及共识性审美的核心。</p>
+                        </div>
+                        <div class="card-action-btn">进入空间 &rarr;</div>
+                    </div>
+                </a>
+                
+                <!-- 展厅 02 -->
+                <a href="Room 02_2.html" class="showcase-link-card">
+                    <div class="card-hover-bg card-bg-2"></div>
+                    <div class="card-content-overlay">
+                        <div class="card-num">SECTION II</div>
+                        <div class="card-title-group">
+                            <h4>关系叙事<br>与趋势回响</h4>
+                            <span>Relational Narrative</span>
+                            <p class="card-desc">解构搭配关系背后被设计好的想象，看 Showroom 把秀场高悬的流行趋势翻译为生活的亲密叙事。</p>
+                        </div>
+                        <div class="card-action-btn">进入空间 &rarr;</div>
+                    </div>
+                </a>
+                
+                <!-- 展厅 03 -->
+                <a href="Room 03.html" class="showcase-link-card">
+                    <div class="card-hover-bg card-bg-3"></div>
+                    <div class="card-content-overlay">
+                        <div class="card-num">SECTION III</div>
+                        <div class="card-title-group">
+                            <h4>灵感界定<br>与市场祛魅</h4>
+                            <span>Redefined Inspiration</span>
+                            <p class="card-desc">厘清内生灵魂与外部框架的灵感边界，在时装的盛大造梦祛魅之下，完成一场清醒冷彻的自我审视，似梦初醒。</p>
+                        </div>
+                        <div class="card-action-btn">进入空间 &rarr;</div>
+                    </div>
+                </a>
+            </div>
+        </section>
+
+
+        <!-- Slide 28 | 终章扉页（呼吸感淡入） -->
+        <section id="slide-28" class="slide-viewport fade-in-section">
+            <div class="hairline"></div>
+            <div class="epilogue-grid">
+                <div class="aphorism-item">
+                    <div class="aphorism-cn">好的设计会形成共识，但真正决定成交的，永远是它与谁相遇。</div>
+                    <div class="aphorism-en">Good design creates consensus. Sales happen through encounters.</div>
+                </div>
+                <div class="aphorism-item">
+                    <div class="aphorism-cn">好的设计先被看见，然后是被穿见。</div>
+                    <div class="aphorism-en">Good design is not merely seen. It is revealed through the body.</div>
+                </div>
+                <div class="aphorism-item">
+                    <div class="aphorism-cn">搭配不是加法，而是关系。</div>
+                    <div class="aphorism-en">Styling is not accumulation. It is negotiation.</div>
+                </div>
+                <div class="aphorism-item">
+                    <div class="aphorism-cn">趋势不是复制，而是不断被翻译。</div>
+                    <div class="aphorism-en">Trends are not replicated. They are continuously translated.</div>
+                </div>
+                <div class="aphorism-item" style="grid-column: span 2; max-width: 600px; margin-top: 20px;">
+                    <div class="aphorism-cn" style="color: var(--accent-sand);">灵感既需要体系，也需要本能。</div>
+                    <div class="aphorism-en">Creativity requires both structure and instinct.</div>
+                </div>
+                <div class="aphorism-item" style="grid-column: span 2; max-width: 600px;">
+                    <div class="aphorism-cn" style="color: var(--accent-sand);">好看，不代表是我。</div>
+                    <div class="aphorism-en">Beauty does not necessarily belong to me.</div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- Slide 29 | 封底（呼吸感淡入） -->
+        <section id="slide-29" class="slide-viewport fade-in-section">
+            <div class="back-summary">
+                <p>这份手记，记录了我从观察买手决策，</p>
+                <p>到提炼爆款规律，</p>
+                <p>最终回归自我本质的完整旅程。</p>
+            </div>
+            <div class="back-stay">
+                <p>它不是答案。</p>
+                <p>而是一次停留——</p>
+                <p style="font-weight: 500;">一次在“之间”的停留。</p>
+            </div>
+            <div class="fin">fin.</div>
+        </section>
+
+    </main>
+
+    <script>
+        // 1. 探照灯背景控制逻辑
+        const firstSection = document.getElementById('slide-01');
+        const spotlight = document.getElementById('spotlight');
+
+        firstSection.addEventListener('mousemove', (e) => {
+            const rect = firstSection.getBoundingClientRect();
+            const x = ((e.clientX - rect.left) / rect.width) * 100;
+            const y = ((e.clientY - rect.top) / rect.height) * 100;
+            spotlight.style.setProperty('--mouse-x', `${x}%`);
+            spotlight.style.setProperty('--mouse-y', `${y}%`);
+        });
+        firstSection.addEventListener('mouseleave', () => { spotlight.style.opacity = '0'; });
+        firstSection.addEventListener('mouseenter', () => { spotlight.style.opacity = '0.85'; });
+
+        // 2. 🌟 核心：原生高阶滚动监听器（Intersection Observer）🌟
+        const observerOptions = {
+            root: null,      // 以浏览器视口为基准进行观察
+            threshold: 0.15   // 当页面显现超过 15% 时触发动效
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    // 当滑动到当前区域，优雅加上 class 触发呼吸淡入与位移
+                    entry.target.classList.add('is-visible');
+                }
+            });
+        }, observerOptions);
+
+        // 为所有带有 .fade-in-section 的容器批量绑定监听
+        document.querySelectorAll('.fade-in-section').forEach(section => {
+            observer.observe(section);
+        });
+    </script>
+</body>
+</html>
